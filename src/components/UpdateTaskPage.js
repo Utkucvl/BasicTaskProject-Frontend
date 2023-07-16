@@ -1,20 +1,24 @@
 import React, { useState } from "react";
-import { GetRequest } from "../services/HttpRequests";
 import { Button, FormLabel, Input } from "@mui/joy";
 import { Container } from "reactstrap";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { UpdateTask } from "../services/HttpRequests";
 import { useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import alertify from "alertifyjs";
 import "alertifyjs/build/css/alertify.css";
- 
+import { useDispatch } from "react-redux";
+import { updateTodo, updateTodoByForm } from "../store/todoSlice";
+import { changeTodos } from "../store/todoSlice";
+
 function UpdateTaskPage() {
+  const location = useLocation();
+  const { nameProp, descriptionProp, statusProp, assignedToProp, pointProp } =
+    location.state;
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { taskId } = useParams();
-  const [oneTask, setOneTask] = useState([]);
   const [name, setName] = useState([]);
   const [status, setStatus] = useState([]);
   const [description, setDescription] = useState([]);
@@ -22,52 +26,49 @@ function UpdateTaskPage() {
   const [assignedTo, setAssignedTo] = useState([]);
 
   useEffect(() => {
-    getOneTask(taskId);
+    getInitialStates();
   }, []);
-  const getOneTask = (id) => {
-    GetRequest("/task/" + id)
-      .then((res) => {
-        return res.json();
-      })
-      .then(
-        (result) => {
-          setOneTask(result)
-          setName(result.name);
-          setStatus(result.status);
-          setDescription(result.description);
-          setPoint(result.point);
-          setAssignedTo(result.assignedTo);
 
-
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
+  const getInitialStates = () => {
+    setName(nameProp);
+    setStatus(statusProp);
+    setDescription(descriptionProp);
+    setPoint(pointProp);
+    setAssignedTo(assignedToProp);
   };
+
   const isItValidToUpdate = () => {
     if (
-      name == "" ||
-      status == "" ||
-      description == "" ||
-      assignedTo == "" ||
-      point == ""
+      name === "" ||
+      status === "" ||
+      description === "" ||
+      assignedTo === "" ||
+      point === ""
     ) {
       alertify.error("You could not update your task");
     } else {
       alertify.success("You have updated your task");
     }
   };
-  const updateTask = (id) => {
-    UpdateTask("/task/" + id, {
-      name: name,
-      description: description,
-      status: status,
-      assignedTo: assignedTo,
-      point: point,
-    });
 
-    navigate("/");
+  const changeUpdateState = () => {
+    if (
+      name !== "" &&
+      status !== "" &&
+      description !== "" &&
+      assignedTo !== "" &&
+      point !== ""
+    ) {
+      dispatch(
+        updateTodo({
+          name: name,
+          description: description,
+          status: status,
+          assignedTo: assignedTo,
+          point: point,
+        })
+      );
+    }
   };
 
   return (
@@ -113,7 +114,20 @@ function UpdateTaskPage() {
           style={{ marginTop: "40px", marginLeft: "38%", marginRight: "12px" }}
           onClick={() => {
             isItValidToUpdate();
-            updateTask(oneTask.id);
+            dispatch(
+              updateTodoByForm({
+                id: taskId,
+                name: name,
+                description: description,
+                status: status,
+                assignedTo: assignedTo,
+                point: point,
+              })
+            );
+            changeUpdateState();
+
+            dispatch(changeTodos());
+            navigate("/");
           }}
         >
           Update Task

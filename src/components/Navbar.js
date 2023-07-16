@@ -4,14 +4,12 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import Modal from '@mui/material/Modal';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import EmailIcon from '@mui/icons-material/Email';
-import SchoolIcon from '@mui/icons-material/School';
+import Modal from "@mui/material/Modal";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import EmailIcon from "@mui/icons-material/Email";
+import SchoolIcon from "@mui/icons-material/School";
 import { Email } from "@mui/icons-material";
 import { Icon, IconButton } from "@mui/material";
-
-
 
 function Navbar() {
   const style = {
@@ -49,15 +47,21 @@ function Navbar() {
                 INFORMATIONS:
               </Typography>
               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                <IconButton><EmailIcon></EmailIcon></IconButton>
+                <IconButton>
+                  <EmailIcon></EmailIcon>
+                </IconButton>
                 utku.cuval0507@gmail.com
               </Typography>
               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                <IconButton><LinkedInIcon></LinkedInIcon></IconButton>
+                <IconButton>
+                  <LinkedInIcon></LinkedInIcon>
+                </IconButton>
                 Utku Çuval
               </Typography>
               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                <IconButton><SchoolIcon></SchoolIcon></IconButton>
+                <IconButton>
+                  <SchoolIcon></SchoolIcon>
+                </IconButton>
                 Abdullah Gul University
               </Typography>
             </Box>
