@@ -1,34 +1,25 @@
 import React, { useState } from "react";
-import { styled } from "@mui/material/styles";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Button } from "@mui/material";
+import { Button, Popconfirm, Row, Table } from "antd";
 import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getAllTodos,
-  addTodo,
-  printTodos,
-  removeTodo,
-  removeTodoById,
-  changeStateOfAdded,
-} from "../store/todoSlice";
-import Task from "./Task";
+import Navbar from "./Navbar";
+import { getAllTodos, removeTodo, removeTodoById } from "../store/todoSlice";
+import Column from "antd/es/table/Column";
+import { Space } from "antd";
+import alertify from "alertifyjs";
+import "alertifyjs/build/css/alertify.css";
 
 function TaskList() {
   let todoList = useSelector((state) => state.todo.todos)[0];
   const dispatch = useDispatch();
   const [isDeleted, setIsDeleted] = useState(false);
-  const deleteTask = (id, task) => {
+  const deleteTask = async (id, task) => {
     setIsDeleted(true);
-    dispatch(removeTodo(task));
-    dispatch(removeTodoById(id));
+    const removeRequest = await dispatch(removeTodoById(id));
+    if (removeRequest.type == "removeTodoById/fulfilled") {
+      dispatch(removeTodo(task));
+    }
   };
   useEffect(() => {
     dispatch(getAllTodos());
@@ -37,48 +28,76 @@ function TaskList() {
     dispatch(getAllTodos());
     setIsDeleted(false);
   }, [isDeleted]);
-
-  const StyledTableCell = styled(TableCell)(({ theme }) => ({
-    [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.common.black,
-      color: theme.palette.common.white,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      fontSize: 14,
-    },
-  }));
+  useEffect(() => {
+    dispatch(getAllTodos());
+  }, [todoList]);
 
   return (
     <div>
-      <TableContainer style={{ marginTop: "30px" }} component={Paper}>
-        <Table sx={{ minWidth: 700 }} aria-label="customized table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Id</StyledTableCell>
-              <StyledTableCell align="right">Name</StyledTableCell>
-              <StyledTableCell align="right">Description</StyledTableCell>
-              <StyledTableCell align="right">Status</StyledTableCell>
-              <StyledTableCell align="right">AssignedTo</StyledTableCell>
-              <StyledTableCell align="right">Point</StyledTableCell>
-              <StyledTableCell align="right">CreatedDate</StyledTableCell>
-              <StyledTableCell align="right">Actions</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {todoList ? (
-              todoList.map((task) => (
-                <Task task={task} deleteTask={deleteTask}></Task>
-              ))
-            ) : (
-              <TableRow>
-                <StyledTableCell colSpan={8} align="center">
-                  Loading...
-                </StyledTableCell>
-              </TableRow>
+      <Navbar></Navbar>
+      <Table dataSource={todoList}>
+        <Row>
+          {console.log(localStorage.getItem("accessToken"))}
+          <Column title="Id" dataIndex="id"></Column>
+          <Column title="Name" dataIndex="name"></Column>
+          <Column title="Description" dataIndex="description"></Column>
+          <Column title="Status" dataIndex="status"></Column>
+          <Column title="AssignedTo" dataIndex="assignedTo"></Column>
+          <Column title="Point" dataIndex="point"></Column>
+          <Column title="CreatedDate" dataIndex="createdDate"></Column>
+          <Column
+            title="Actions"
+            render={(_, task) => (
+              <Space size="middle">
+                <Link
+                  to={`/update/${task.id}`}
+                  state={{
+                    nameProp: task.name,
+                    descriptionProp: task.description,
+                    statusProp: task.status,
+                    assignedToProp: task.assignedTo,
+                    pointProp: task.point,
+                    createdDateProp: task.createdDate,
+                  }}
+                  className="link"
+                >
+                  <Button
+                    style={{ backgroundColor: "blue", color: "white" }}
+                    onClick={() => {
+                      console.log(task.id);
+                    }}
+                  >
+                    Update
+                  </Button>
+                </Link>
+
+                <Popconfirm
+                  title="Delete the task"
+                  description="Are you sure to delete this task?"
+                  onConfirm={() => {
+                    {
+                      deleteTask(task.id, task);
+                      localStorage.getItem("accessToken")
+                        ? alertify.success("You have deleted task")
+                        : alertify.error("You have not delete task");
+                    }
+                  }}
+                  onCancel={() => {
+                    alertify.error("You have not deleted task");
+                  }}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button style={{ backgroundColor: "red", color: "white" }}>
+                    X
+                  </Button>
+                </Popconfirm>
+              </Space>
             )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          ></Column>
+        </Row>
+      </Table>
+
       <Link to="/add" className="link">
         <Button
           style={{

@@ -1,75 +1,115 @@
-import React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Modal from "@mui/material/Modal";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import EmailIcon from "@mui/icons-material/Email";
-import SchoolIcon from "@mui/icons-material/School";
-import { Email } from "@mui/icons-material";
-import { Icon, IconButton } from "@mui/material";
+import React, { useState } from "react";
+import {
+  ContactsOutlined,
+  LinkedinFilled,
+  MailOutlined,
+} from "@ant-design/icons";
+import { Button, Menu, Layout } from "antd";
+import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
-function Navbar() {
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
+const items = [
+  {
+    label: "Basic Task App",
+  },
+  {
+    label: "Contact",
+    key: "SubMenu",
+    icon: <ContactsOutlined />,
+    children: [
+      {
+        type: "group",
+        label: "Name and Surname : ",
+        children: [
+          {
+            label: "Utku Cuval",
+            key: "setting:1",
+          },
+        ],
+      },
+      {
+        type: "group",
+        label: "Communication",
+        children: [
+          {
+            icon: <LinkedinFilled />,
+            label: "Utku Çuval",
+            key: "setting:3",
+          },
+          {
+            icon: <MailOutlined />,
+            label: "utku.cuval0507@gmail.com",
+            key: "setting:4",
+          },
+        ],
+      },
+      {
+        type: "group",
+        label: "School",
+        children: [
+          {
+            label: "Abdullah Gul University",
+            key: "setting:3",
+          },
+        ],
+      },
+    ],
+  },
+];
+const { Header } = Layout;
+const Navbar = () => {
+  const [reRenderPage,setReRenderPage] = useState(false)
+  const [current, setCurrent] = useState("mail");
+  const onClick = (e) => {
+    console.log("click ", e);
+    setCurrent(e.key);
   };
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  useEffect(() => {
+    
+  }, [reRenderPage]);
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            BASIC TASK APP
-          </Typography>
-          <Button color="inherit" onClick={handleOpen}>
-            Contact
-          </Button>
-          <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                INFORMATIONS:
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                <IconButton>
-                  <EmailIcon></EmailIcon>
-                </IconButton>
-                utku.cuval0507@gmail.com
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                <IconButton>
-                  <LinkedInIcon></LinkedInIcon>
-                </IconButton>
-                Utku Çuval
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                <IconButton>
-                  <SchoolIcon></SchoolIcon>
-                </IconButton>
-                Abdullah Gul University
-              </Typography>
-            </Box>
-          </Modal>
-        </Toolbar>
-      </AppBar>
-    </Box>
+    <Layout className="layout">
+      <Header
+        style={{
+          display: "flex",
+          height: "60px",
+          justifyContent: "space-between",
+        }}
+      >
+        <Menu
+          theme="dark"
+          mode="horizontal"
+          onClick={onClick}
+          selectedKeys={[current]}
+          items={items}
+        ></Menu>
+        <div >
+          {" "}
+          {localStorage.getItem("accessToken") ? (
+            <Button
+              style={{ border:"none",height: "100%", width: "75px", float: "right" ,backgroundColor:"#030852",color:"white" }}
+              onClick={ async () => {
+                await localStorage.removeItem("accessToken")
+                await localStorage.removeItem("currentUser")
+                await localStorage.removeItem("refreshToken")
+                setReRenderPage(!reRenderPage)
+              }}
+            >
+              {" "}
+              Log out{" "}
+            </Button>
+          ) : (
+            <Link to = "auth/login">
+              {" "}
+              <Button onClick={()=>{console.log("auth gitdi")}} style={{ border:"none", height: "100%", width: "75px", float: "right"  ,backgroundColor:"#030852",color:"white" ,textDecoration:"none"}}>
+                {" "}
+                Log in{" "}
+              </Button>
+            </Link>
+          )}{" "}
+        </div>
+      </Header>
+    </Layout>
   );
-}
-
+};
 export default Navbar;
